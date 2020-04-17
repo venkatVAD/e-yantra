@@ -64,7 +64,6 @@ Adafruit_DCMotor *rightMotor = AFMS.getMotor(2);
   
 ros::NodeHandle nh;
 
-//function that will be called when receiving command from host
 void handle_cmd (const geometry_msgs::Twist& cmd_vel) {
   noCommLoops = 0;                                                  
   
@@ -81,7 +80,7 @@ ros::Publisher speed_pub("speed", &speed_msg);
 const int lightIncNumber = 30;                                                                                                                                      
 int lightInc = 0;                                                                                                                                                    
 int lightValue [lightIncNumber]= { 10, 40, 80, 160, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 160, 80, 40, 10, 0, 0, 0, 0, 0, 0, 0, 0 };
-int lightValueNoComm [25]= { 255, 0, 255, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; //side light increment values
+int lightValueNoComm [25]= { 255, 0, 255, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
 int lightT = 0; //init light period
 
 
@@ -103,7 +102,7 @@ void setup() {
   rightMotor->setSpeed(0);
   rightMotor->run(BRAKE);
  
-  //setting PID parameters
+
   PID_leftMotor.SetSampleTime(95);
   PID_rightMotor.SetSampleTime(95);
   PID_leftMotor.SetOutputLimits(-max_speed, max_speed);
