@@ -10,17 +10,17 @@
  Servo myservo;
 
 #define LOOPTIME                      100    
-const byte noCommLoopMax = 10;                
+const byte noCommLoopMaximum = 10;                
 unsigned int noCommLoops = 0;                 
 
 double speed_cmd_left2 = 0;      
 
-const int PIN_ENCOD_A_MOTOR_LEFT = 2;                                 
-const int PIN_ENCOD_B_MOTOR_LEFT = 4;               
-const int PIN_ENCOD_A_MOTOR_RIGHT = 3;                  
-const int PIN_ENCOD_B_MOTOR_RIGHT = 5;              
+const int PIN_ENCODED_A_MOTOR_LEFT = 2;                                 
+const int PIN_ENCODED_B_MOTOR_LEFT = 4;               
+const int PIN_ENCODED_A_MOTOR_RIGHT = 3;                  
+const int PIN_ENCODED_B_MOTOR_RIGHT = 5;              
 
-const int PIN_SIDE_LIGHT_LED = 46;                  
+const int PIN_SIDE_LIGHT_LIGHT = 46;                  
 
 unsigned long lastMilli = 0;
 
@@ -48,15 +48,15 @@ int PWM_leftMotor = 0;
 int PWM_rightMotor = 0;                   
 int angle =90;  
 int angleStep =10;                                                      
-// PID Parameters
-const double PID_left_param[] = { 0, 0, 0.1 }; 
-const double PID_right_param[] = { 0, 0, 0.1 }; 
+
+const double PID_left[] = { 0, 0, 0.1 }; 
+const double PID_right[] = { 0, 0, 0.1 }; 
 
 volatile float pos_left = 0;      
 volatile float pos_right = 0;      
 
-PID PID_leftMotor(&speed_act_left, &speed_cmd_left, &speed_req_left, PID_left_param[0], PID_left_param[1], PID_left_param[2], DIRECT);        
-PID PID_rightMotor(&speed_act_right, &speed_cmd_right, &speed_req_right, PID_right_param[0], PID_right_param[1], PID_right_param[2], DIRECT);   
+PID PID_leftMotor(&speed_act_left, &speed_cmd_left, &speed_req_left, PID_left[0], PID_left[1], PID_left[2], DIRECT);        
+PID PID_rightMotor(&speed_act_right, &speed_cmd_right, &speed_req_right, PID_right[0], PID_right[1], PID_right[2], DIRECT);   
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();  
 Adafruit_DCMotor *leftMotor = AFMS.getMotor(1);     
@@ -79,16 +79,16 @@ geometry_msgs::Vector3Stamped speed_msg;
 ros::Publisher speed_pub("speed", &speed_msg);                          
 const int lightIncNumber = 30;                                                                                                                                      
 int lightInc = 0;                                                                                                                                                    
-int lightValue [lightIncNumber]= { 10, 40, 80, 160, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 160, 80, 40, 10, 0, 0, 0, 0, 0, 0, 0, 0 };
-int lightValueNoComm [25]= { 255, 0, 255, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
+int LEDVLAUE [lightIncNumber]= { 10, 40, 80, 160, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 160, 80, 40, 10, 0, 0, 0, 0, 0, 0, 0, 0 };
+int LEDVLAUENoComm [25]= { 255, 0, 255, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
 int lightT = 0; //init light period
 
 
 void setup() {
 
   
-  pinMode(PIN_SIDE_LIGHT_LED, OUTPUT);      
-  analogWrite(PIN_SIDE_LIGHT_LED, 255);     
+  pinMode(PIN_SIDE_LIGHT_LIGHT, OUTPUT);      
+  analogWrite(PIN_SIDE_LIGHT_LIGHT, 255);     
   
   nh.initNode();                            
   nh.getHardware()->setBaud(57600);         
@@ -111,17 +111,17 @@ void setup() {
   PID_rightMotor.SetMode(AUTOMATIC);
     
 
-  pinMode(PIN_ENCOD_A_MOTOR_LEFT, INPUT); 
-  pinMode(PIN_ENCOD_B_MOTOR_LEFT, INPUT); 
-  digitalWrite(PIN_ENCOD_A_MOTOR_LEFT, HIGH);              
-  digitalWrite(PIN_ENCOD_B_MOTOR_LEFT, HIGH);
+  pinMode(PIN_ENCODED_A_MOTOR_LEFT, INPUT); 
+  pinMode(PIN_ENCODED_B_MOTOR_LEFT, INPUT); 
+  digitalWrite(PIN_ENCODED_A_MOTOR_LEFT, HIGH);              
+  digitalWrite(PIN_ENCODED_B_MOTOR_LEFT, HIGH);
   attachInterrupt(0, encoderLeftMotor, RISING);
 
 
-  pinMode(PIN_ENCOD_A_MOTOR_RIGHT, INPUT); 
-  pinMode(PIN_ENCOD_B_MOTOR_RIGHT, INPUT); 
-  digitalWrite(PIN_ENCOD_A_MOTOR_RIGHT, HIGH);               
-  digitalWrite(PIN_ENCOD_B_MOTOR_RIGHT, HIGH);
+  pinMode(PIN_ENCODED_A_MOTOR_RIGHT, INPUT); 
+  pinMode(PIN_ENCODED_B_MOTOR_RIGHT, INPUT); 
+  digitalWrite(PIN_ENCODED_A_MOTOR_RIGHT, HIGH);               
+  digitalWrite(PIN_ENCODED_B_MOTOR_RIGHT, HIGH);
   attachInterrupt(1, encoderRightMotor, RISING);
 
 
@@ -140,14 +140,14 @@ void loop() {
     lastMilli = millis();
     
     if (!nh.connected()){
-      analogWrite(PIN_SIDE_LIGHT_LED, lightValueNoComm[lightInc]);
+      analogWrite(PIN_SIDE_LIGHT_LIGHT, LEDVLAUENoComm[lightInc]);
       lightInc=lightInc+1;
       if (lightInc >= 25){
         lightInc=0;
       }
     }
     else{
-      analogWrite(PIN_SIDE_LIGHT_LED, lightValue [lightInc]);
+      analogWrite(PIN_SIDE_LIGHT_LIGHT, LEDVLAUE [lightInc]);
       lightT = 3000 - ((2625/max_speed)*((abs(speed_req_left)+abs(speed_req_right))/2));
       lightInc=lightInc+(30/(lightT/LOOPTIME));
       if (lightInc >= lightIncNumber){
@@ -178,7 +178,7 @@ void loop() {
 
     PWM_leftMotor = constrain(((speed_req_left+sgn(speed_req_left)*min_speed_cmd)/speed_to_pwm_ratio) + (speed_cmd_left/speed_to_pwm_ratio), -255, 255); 
     
-    if (noCommLoops >= noCommLoopMax) {                  
+    if (noCommLoops >= noCommLoopMaximum) {                  
       leftMotor->setSpeed(0);
       leftMotor->run(BRAKE);
     }
@@ -200,7 +200,7 @@ void loop() {
    
     PWM_rightMotor = constrain(((speed_req_right+sgn(speed_req_right)*min_speed_cmd)/speed_to_pwm_ratio) + (speed_cmd_right/speed_to_pwm_ratio), -255, 255); 
 
-    if (noCommLoops >= noCommLoopMax) {                   
+    if (noCommLoops >= noCommLoopMaximum) {                   
       rightMotor->setSpeed(0);
       rightMotor->run(BRAKE);
     }
@@ -223,7 +223,7 @@ void loop() {
 
     noCommLoops++;
     if (noCommLoops == 65535){
-      noCommLoops = noCommLoopMax;
+      noCommLoops = noCommLoopMaximum;
     }
     
     publishSpeed(LOOPTIME);   
@@ -256,13 +256,13 @@ void publishSpeed(double time) {
 
 
 void encoderLeftMotor() {
-  if (digitalRead(PIN_ENCOD_A_MOTOR_LEFT) == digitalRead(PIN_ENCOD_B_MOTOR_LEFT)) pos_left++;
+  if (digitalRead(PIN_ENCODED_A_MOTOR_LEFT) == digitalRead(PIN_ENCODED_B_MOTOR_LEFT)) pos_left++;
   else pos_left--;
 }
 
 
 void encoderRightMotor() {
-  if (digitalRead(PIN_ENCOD_A_MOTOR_RIGHT) == digitalRead(PIN_ENCOD_B_MOTOR_RIGHT)) pos_right--;
+  if (digitalRead(PIN_ENCODED_A_MOTOR_RIGHT) == digitalRead(PIN_ENCODED_B_MOTOR_RIGHT)) pos_right--;
   else pos_right++;
 }
 
